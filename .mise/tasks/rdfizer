@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+# [MISE] description = "Runs RDFizer"
+# [MISE] sources = [ "mappings/**/*", "!mappings/output/*", "!mappings/**/*_without_views.ttl", "!mappings/**/*.json" ]
+# [MISE] depends = []
+
+python -Bm rdfizer -c  "$@"

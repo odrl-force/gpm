@@ -1,0 +1,38 @@
+
+[settings]
+experimental = true
+github.oauth_client_id = "Iv23liLU5VXPnQQ9ONos" # apps/dev-gpm
+
+[env]
+RMLVIEWER = { value = "{{ tools.rmlviewer.path }}/src/rmlviewer.py", tools = true }
+RMLMAPPER = { value = "{{ tools.rmlmapper.path }}/rmlmapper.jar", tools = true }
+
+[deps.pip]
+auto = true
+
+[tool_alias]
+treefmt = "aqua:numtide/treefmt"
+quarto = "pipx:quarto-cli"
+rdfizer = "pipx:rdfizer"
+rmlmapper = "github:RMLio/rmlmapper-java"
+rmlviewer = "http:RMLio/rmlviewer"
+
+[tools]
+quarto = "latest"
+treefmt = "latest"
+vale = { version = "latest", postinstall = "vale sync" }
+java = "latest"
+python = "latest"
+uv = "latest"
+rdfizer = "latest"
+rmlmapper = { version = "latest", rename_exe = "rmlmapper.jar" }
+
+[tools.rmlviewer]
+version = "2.0.0"
+url = "https://api.github.com/repos/RMLio/rmlviewer/tarball/v{{ version }}"
+format = "tar.gz"
+strip_components = 1
+postinstall = "mise x python -- pip install -r $MISE_TOOL_INSTALL_PATH/requirements.txt"
+
+[tasks]
+setup = "mise bootstrap"

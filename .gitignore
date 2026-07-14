@@ -1,3 +1,4 @@
+.venv/
 .vale/
 !.vale/config/
 .quarto/
@@ -10,6 +11,6 @@
 *.aux
 *.log
 out
-
+output
 /.quarto/
 **/*.quarto_ipynb

@@ -16,12 +16,17 @@ The contents of this repo are structured as follows:
 ### Tooling
 
 All dependencies are managed my Mise-en-place, which can be installed by running `curl https://mise.run | sh` (or via any of the other [installation methods](https://mise.jdx.dev/installing-mise.html#installation-methods)).
-Mise needs to be actived to make the required tooling available. This can be done manually per session by running `mise activate`, or automatically by including this command [in your shell setup](https://mise.jdx.dev/installing-mise.html#shells).
-The necessary tooling, specified in [./.mise.toml](./.mise.toml), is then set up by running `mise install`, and updated with `mise upgrade`.
+<!-- Mise needs to be actived to make the required tooling available. This can be done manually per session by running `mise activate`, or automatically by including this command [in your shell setup](https://mise.jdx.dev/installing-mise.html#shells). -->
+The necessary tooling, specified in [./.mise.toml](./.mise.toml), is then set up by running `mise bootstrap`.
 
 The following tools are used in this project:
 
 - [Quarto](https://quarto.org/): scientific publication tool.
 - [Treefmt](https://treefmt.com/): manages linters and formatters; configured in [./.treefmt.toml](./.treefmt.toml), run with `treefmt <paths...>`.
 - [Vale](https://vale.sh/): a prose linter; configured in [./.vale.ini](./.vale.ini).
-- [RDFizer](https://github.com/SDM-TIB/SDM-RDFizer/): an RML engine.
+- [RDFizer](https://github.com/SDM-TIB/SDM-RDFizer/): an RML engine supporting Logical Views.
+- [RMLmapper](https://github.com/RMLio/rmlmapper-java): an RML engine *not* supporting Logical Views.
+- [RMLviewer](https://github.com/RMLio/rmlviewer): an RML transpilation tool for Logical Views.
+- OpenJDK: runtime for RMLMapper.
+- Python: runtime for RMLMapper and RDFizer.
+- uv: faster package manager for Python.

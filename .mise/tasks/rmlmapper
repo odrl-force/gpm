@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+# [MISE] description = "Runs RMLMapper"
+# [MISE] sources = [ "mappings/**/*", "!mappings/output/**/*" ]
+
+java -jar $RMLMAPPER -c "$@"
