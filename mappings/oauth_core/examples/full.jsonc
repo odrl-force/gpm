@@ -1,0 +1,15 @@
+{
+  "client_id": "string",
+  "scope": "string",
+  "resource": "string",
+  "authorization_details": [
+    {
+      "type": "string",
+      "identifier": "string",
+      "locations": "array[string]",
+      "datatypes": "array[string]",
+      "privileges": "array[string]",
+      "actions": "array[string]"
+    }
+  ]
+}
