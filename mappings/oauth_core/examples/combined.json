@@ -1,0 +1,8 @@
+{
+  "client_id": "0123456789",
+  "scope": "read write",
+  "resource": [
+    "doc1.txt",
+    "doc2.txt"
+  ]
+}

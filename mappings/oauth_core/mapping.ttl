@@ -1,0 +1,128 @@
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix grel:   <http://users.ugent.be/~bjdmeest/function/grel.ttl#> .
+@prefix lfn:    <https://w3id.org/imec/idlab/function#> .
+@prefix fno: 	  <https://w3id.org/function/ontology#> .
+@prefix fnml:   <http://semweb.mmlab.be/ns/fnml#> .
+@prefix rr:     <http://www.w3.org/ns/r2rml#> .
+@prefix rml:    <http://w3id.org/rml/> .
+@prefix :       <urn:example:> .
+@prefix as:     <urn:example:as:> .
+@prefix gpm:    <urn:example:gpm:> .
+@prefix nufb:   <urn:example:gpm:fallback:> .
+@prefix oauth:  <urn:example:gpm:fields:oauth:> .
+@prefix ops:    <urn:example:gpm:types:op:> .
+
+:view a rml:LogicalView ;
+  rml:viewOn [
+    rml:source [ rml:path "{{{input}}}" ] ;
+    rml:referenceFormulation rml:JSONPath ;
+    rml:iterator "$" ] ;
+  rml:field
+    [ rml:fieldName "client_id" ; rml:reference "client_id" ] ,
+    [
+      rml:fieldName "legacy" ;
+      rml:iterator "[*]" ;
+      rml:field
+        [ rml:fieldName "resource"  ; rml:reference "resource" ] ,
+        [ rml:fieldName "scope"     ; rml:reference "scope" ]
+    ], [
+      rml:fieldName "details" ;
+      rml:iterator "$.authorization_details[*]" ;
+      rml:field
+        [ rml:fieldName "type" ; rml:reference "type" ] ,
+        [ rml:fieldName "identifier" ; rml:reference "identifier" ] ,
+        [ rml:fieldName "location" ; rml:reference "locations" ] ,
+        [ rml:fieldName "action" ; rml:reference "actions" ] ,
+        [ rml:fieldName "datatype" ; rml:reference "datatypes" ] ,
+        [ rml:fieldName "privilege" ; rml:reference "privileges" ]
+    ] .
+
+:mapping a rml:TriplesMap ;
+  rml:logicalSource :view ;
+  rml:subjectMap [
+    rml:termType rml:BlankNode ;
+    rml:constant "req" ;
+  ] ;
+  rml:predicateObjectMap [
+    rml:predicate gpm:client ;
+    rml:objectMap [ rml:reference "client_id" ] ;
+  ], [
+    rml:predicate gpm:operation ;
+    rml:objectMap [ rml:parentTriplesMap :ops_legacy ] ;
+    rml:objectMap [ rml:parentTriplesMap :ops_details ] ;
+  ] .
+
+:ops_legacy a rml:TriplesMap ;
+  rml:logicalSource :view ;
+  rml:subjectMap [
+    rml:termType rml:BlankNode ;
+    rml:constant "opx" ;
+  ] ;
+  rml:predicateObjectMap [
+    rml:predicate gpm:type ;
+    rml:object ops:oauth_legacy ;
+  ], [
+    rml:predicate gpm:target ;
+    rml:objectMap [
+      rml:termType rml:IRI ;
+      rml:reference "legacy.resource" ;
+    ]
+  ], [
+    rml:predicate gpm:action ;
+    rml:objectMap [
+      rml:termType rml:IRI ;
+      fnml:functionValue :fn-scope-split ;
+    ]
+  ] .
+
+:ops_details a rml:TriplesMap ;
+  rml:logicalSource :view ;
+  rml:subjectMap [
+    rml:termType rml:BlankNode ;
+    rml:template "op{details.#}" ;
+  ] ;
+  rml:predicateObjectMap [
+    rml:predicate gpm:type ;
+    rml:objectMap [ rml:reference "details.type" ] ;
+  ], [
+    rml:predicate gpm:target ;
+    rml:objectMap [ rml:reference "details.location" ] ;
+    rml:objectMap [ rml:reference "details.identifier" ] ;
+  ], [
+    rml:predicate gpm:action ;
+    rml:objectMap [ rml:reference "details.action" ] ;
+    rml:objectMap [ rml:reference "details.datatype" ] ;
+    rml:objectMap [ rml:reference "details.privilege" ] ;
+  ] .
+
+# :fn-scope rr:predicateObjectMap
+#   [ rr:predicate fno:executes ; rr:object lfn:trueCondition ],
+#   [
+#     rr:predicate lfn:strBoolean ;
+#     rr:objectMap [ fnml:functionValue :fn-scope-present ]
+#   ],[
+#     rr:predicate lfn:str ;
+#     rr:objectMap [ fnml:functionValue :fn-scope-split ]
+#   ].
+
+# :fn-scope-present rr:predicateObjectMap
+#   [ rr:predicate fno:executes ; rr:object grel:boolean_not ],
+#   [
+#     rr:predicate grel:bool_b ;
+#     rr:objectMap [ fnml:functionValue :fn-scope-null ]
+#   ].
+
+# :fn-scope-null rr:predicateObjectMap
+#   [ rr:predicate fno:executes ; rr:object lfn:isNull ],
+#   [
+#     rr:predicate lfn:str ;
+#     rr:objectMap [ rml:reference "scope" ]
+#   ].
+
+:fn-scope-split rr:predicateObjectMap
+  [ rr:predicate fno:executes ; rr:object grel:string_split ],
+  [ rr:predicate grel:p_string_sep ; rr:object " " ],
+  [
+    rr:predicate grel:valueParameter ;
+    rr:objectMap [ rml:reference "legacy.scope" ]
+  ].

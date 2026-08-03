@@ -1,0 +1,21 @@
+{
+  "client_id": "0123456789",
+  "authorization_details": [
+    {
+      "type": "resource_details",
+      "identifier": "string",
+      "locations": "array[string]",
+      "datatypes": "array[string]",
+      "privileges": "array[string]",
+      "actions": "array[string]"
+    },
+    {
+      "type": "resource_details_alt",
+      "identifier": "string",
+      "locations": "array[string]",
+      "datatypes": "array[string]",
+      "privileges": "array[string]",
+      "actions": "array[string]"
+    }
+  ]
+}

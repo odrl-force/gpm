@@ -1,0 +1,50 @@
+{
+  "client_id": "0123456789",
+  "scope": "read write",
+  "resource": [
+    "doc1.txt",
+    "doc2.txt"
+  ],
+  "authorization_details": [
+    {
+      "type": "resource_details",
+      "identifier": "r123",
+      "locations": [
+        "location_R1",
+        "location_R2"
+      ],
+      "datatypes": [
+        "datatype_R1",
+        "datatype_R2"
+      ],
+      "privileges": [
+        "privilege_R1",
+        "privilege_R2"
+      ],
+      "actions": [
+        "action_R1",
+        "action_R2"
+      ]
+    },
+    {
+      "type": "service_details",
+      "identifier": "s456",
+      "locations": [
+        "location_S1",
+        "location_S2"
+      ],
+      "datatypes": [
+        "datatype_S1",
+        "datatype_S2"
+      ],
+      "privileges": [
+        "privilege_S1",
+        "privilege_S2"
+      ],
+      "actions": [
+        "action_S1",
+        "action_S2"
+      ]
+    }
+  ]
+}
