@@ -1,0 +1,27 @@
+#!/usr/bin/env lua
+
+local path = require("path")
+local fs = require("path.fs")
+
+local inpath, outpath = arg[1], arg[2]
+
+if not inpath or not outpath then
+  error("Expected two file paths as arguments.")
+end
+if not path.isfile(inpath) then
+  error("Input path '" .. inpath .. "' is not a file.")
+end
+-- if path.exists(outpath) then
+--   error("Output path '" .. outpath .. "' already exists.")
+-- end
+
+os.execute(table.concat({"mise rmlviewer -- --mapping", inpath, "--output_dir", path.parent(outpath)}, " "))
+
+fs.rename(
+  path.abs(path.parent(outpath), "mapping_without_views.ttl"),
+  path.abs(outpath)
+)
+
+for view in fs.glob("view*.json", 1) do
+  fs.rename(view, path.abs(path.parent(outpath), view))
+end

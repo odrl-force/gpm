@@ -1,0 +1,51 @@
+#!/usr/bin/env lua
+
+local path = require("path")
+local fs = require("path.fs")
+
+local cwd = path.cwd()
+
+local group, example = arg[1], arg[2]
+if not group then
+  error("Expected a group name.")
+end
+
+local mappings = fs.chdir(path.abs("mappings"))
+if not mappings then
+  error("Mappings folder could not be found.")
+end
+
+local grouppath = fs.chdir(path.abs(group))
+if not grouppath then
+  error("Group folder could not be found.")
+end
+
+local mappath = path.abs("mapping.ttl")
+if not path.isfile(mappath) then
+  error("Group folder does not contain a mapping file.")
+end
+
+local examples = fs.chdir("examples")
+if not examples then
+  error("Group folder does not contain examples folder.")
+end
+
+local cases = {}
+
+if example then
+  local filepath = path.abs(example .. ".json")
+  if not path.isfile(filepath) then
+    error("Example file could not be found.")
+  end
+  cases[#cases+1] = filepath
+else
+  for filepath in fs.glob("*.json") do
+    cases[#cases+1] = path.abs(filepath)
+  end
+end
+
+for _, case in ipairs(cases) do
+  os.execute(table.concat({
+    "mise map --", mappath, case, path(path.parent(case), path.stem(case) .. ".nq")
+  }, " "))
+end

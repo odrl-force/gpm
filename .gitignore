@@ -10,7 +10,13 @@
 *.tex
 *.aux
 *.log
+*.nq
+*.nt
 out
 output
+/lua
+/luarocks
+/lua_modules
+/.luarocks
 /.quarto/
 **/*.quarto_ipynb

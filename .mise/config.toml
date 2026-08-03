@@ -1,6 +1,7 @@
 
 [settings]
 experimental = true
+minimum_release_age = "0s"
 github.oauth_client_id = "Iv23liLU5VXPnQQ9ONos" # apps/dev-gpm
 
 [env]
@@ -10,7 +11,14 @@ RMLMAPPER = { value = "{{ tools.rmlmapper.path }}/rmlmapper.jar", tools = true }
 [deps.pip]
 auto = true
 
+[deps.luarocks]
+auto = true
+description = "Installs Lua modules for tasks"
+sources	= [ ".mise/gpmtasks-dev-1.rockspec" ]
+run	= "luarocks install --no-project --deps-only .mise/gpmtasks-dev-1.rockspec"
+
 [tool_alias]
+mustache = "aqua:cbroglie/mustache"
 treefmt = "aqua:numtide/treefmt"
 quarto = "pipx:quarto-cli"
 rdfizer = "pipx:rdfizer"
@@ -26,13 +34,18 @@ python = "latest"
 uv = "latest"
 rdfizer = "latest"
 rmlmapper = { version = "latest", rename_exe = "rmlmapper.jar" }
+"vfox:lua" = "latest"
+"aqua:cbroglie/mustache" = "latest"
 
 [tools.rmlviewer]
-version = "2.0.0"
-url = "https://api.github.com/repos/RMLio/rmlviewer/tarball/v{{ version }}"
+version = "133c0e7" # "v2.0.0"
+url = "https://api.github.com/repos/RMLio/rmlviewer/tarball/{{ version }}"
 format = "tar.gz"
 strip_components = 1
 postinstall = "mise x python -- pip install -r $MISE_TOOL_INSTALL_PATH/requirements.txt"
 
 [tasks]
 setup = "mise bootstrap"
+rmlmapper = "java -jar $RMLMAPPER"
+rmlviewer = "python -B $RMLVIEWER"
+rdfizer = "rdfizer"

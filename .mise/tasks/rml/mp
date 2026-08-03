@@ -1,0 +1,39 @@
+#!/usr/bin/env lua
+
+local path = require("path")
+local fs = require("path.fs")
+local lustache = require("lustache")
+
+local mappath, outpath = arg[1], arg[2]
+
+if not mappath or not outpath then
+  error("Expected two file paths as arguments.")
+end
+if not path.isfile(mappath) then
+  error("Mapping path '" .. mappath .. "' is not a file.")
+end
+-- if path.exists(outpath) then
+--   error("Output path '" .. outpath .. "' already exists.")
+-- end
+
+local tcfgpath = path.abs("mappings/config/rmlmapper.properties")
+local cfgpath = path.abs(fs.tmpdir(), "config.properties")
+
+local tcfgfile = assert(
+  io.open(tcfgpath, "r"),
+  "Could not read config template."
+)
+local cfgfile = assert(
+  io.open(cfgpath, "w"),
+  "Could not create temporary config file."
+)
+
+cfgfile:write(lustache:render(tcfgfile:read("*all"), {
+  mapping = path.abs(mappath),
+  output = path.abs(outpath)
+}))
+
+tcfgfile:close()
+cfgfile:close()
+
+os.execute(table.concat({"mise rmlmapper -- -c", cfgpath}, " "))
