@@ -1,5 +1,6 @@
 
 # Generalized Policy Management
 
-- [Paper](paper/index.pdf)
-- [Specification](spec/index.html)
+- [Repo](https://github.com/odrl-force/gpm)
+- [Paper](paper/index.pdf) (draft)
+- [Specification](spec/index.html) (draft)
