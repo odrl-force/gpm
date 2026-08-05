@@ -26,9 +26,13 @@
         [ rml:fieldName "resource"  ; rml:reference "resource" ] ,
         [ rml:fieldName "scope"     ; rml:reference "scope" ]
     ], [
+      rml:fieldName "field" ;
+      rml:reference "$.authorization_details[0].`keys`" ;
+    ], [
       rml:fieldName "details" ;
       rml:iterator "$.authorization_details[*]" ;
       rml:field
+        # [ rml:fieldName "field" ; rml:template "{keys()}" ] ,
         [ rml:fieldName "type" ; rml:reference "type" ] ,
         [ rml:fieldName "identifier" ; rml:reference "identifier" ] ,
         [ rml:fieldName "location" ; rml:reference "locations" ] ,
@@ -46,6 +50,9 @@
   rml:predicateObjectMap [
     rml:predicate gpm:client ;
     rml:objectMap [ rml:reference "client_id" ] ;
+  ], [
+    rml:predicate gpm:FIELD ;
+    rml:objectMap [ rml:reference "field" ] ;
   ], [
     rml:predicate gpm:operation ;
     rml:objectMap [ rml:parentTriplesMap :ops_legacy ] ;
@@ -95,34 +102,50 @@
     rml:objectMap [ rml:reference "details.privilege" ] ;
   ] .
 
-# :fn-scope rr:predicateObjectMap
-#   [ rr:predicate fno:executes ; rr:object lfn:trueCondition ],
-#   [
-#     rr:predicate lfn:strBoolean ;
-#     rr:objectMap [ fnml:functionValue :fn-scope-present ]
-#   ],[
-#     rr:predicate lfn:str ;
-#     rr:objectMap [ fnml:functionValue :fn-scope-split ]
-#   ].
+:fn-scope rr:predicateObjectMap
+  [ rr:predicate fno:executes ; rr:object lfn:trueCondition ],
+  [
+    rr:predicate lfn:strBoolean ;
+    rr:objectMap [ fnml:functionValue :fn-scope-present ]
+  ],[
+    rr:predicate lfn:str ;
+    rr:objectMap [ fnml:functionValue :fn-scope-catch ]
+  ].
 
-# :fn-scope-present rr:predicateObjectMap
-#   [ rr:predicate fno:executes ; rr:object grel:boolean_not ],
-#   [
-#     rr:predicate grel:bool_b ;
-#     rr:objectMap [ fnml:functionValue :fn-scope-null ]
-#   ].
+:fn-scope-catch rr:predicateObjectMap
+  [ rr:predicate fno:executes ; rr:object grel:controls_if ],
+  [
+    rr:predicate grel:bool_b ;
+    rr:objectMap [ fnml:functionValue :fn-scope-null ]
+  ],[
+    rr:predicate grel:any_true ;
+    rr:object ""
+  ],[
+    rr:predicate grel:any_false ;
+    rr:objectMap [ rml:reference "legacy.scope" ]
+  ].
 
-# :fn-scope-null rr:predicateObjectMap
-#   [ rr:predicate fno:executes ; rr:object lfn:isNull ],
-#   [
-#     rr:predicate lfn:str ;
-#     rr:objectMap [ rml:reference "scope" ]
-#   ].
+:fn-scope-present rr:predicateObjectMap
+  [ rr:predicate fno:executes ; rr:object lfn:notEqual ],
+  [
+    rr:predicate grel:valueParameter ;
+    rr:objectMap [ fnml:functionValue :fn-scope-catch ]
+  ],[
+    rr:predicate grel:valueParameter2 ;
+    rr:object ""
+  ].
+
+:fn-scope-null rr:predicateObjectMap
+  [ rr:predicate fno:executes ; rr:object lfn:isNull ],
+  [
+    rr:predicate lfn:str ;
+    rr:objectMap [ rml:reference "legacy.scope" ]
+  ].
 
 :fn-scope-split rr:predicateObjectMap
   [ rr:predicate fno:executes ; rr:object grel:string_split ],
   [ rr:predicate grel:p_string_sep ; rr:object " " ],
   [
     rr:predicate grel:valueParameter ;
-    rr:objectMap [ rml:reference "legacy.scope" ]
+    rr:objectMap [ fnml:functionValue :fn-scope ]
   ].
