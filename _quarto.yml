@@ -4,7 +4,7 @@ project:
   title: Generalized Policy Management
 
   output-dir: out
-  lib-dir: out/lib
+  lib-dir: lib
 
   render: [ "**/*.qmd" ]
 
