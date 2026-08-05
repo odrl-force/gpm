@@ -3,10 +3,23 @@
 experimental = true
 minimum_release_age = "0s"
 github.oauth_client_id = "Iv23liLU5VXPnQQ9ONos" # apps/dev-gpm
+use_versions_host = true
+lockfile = true # use lockfiles = run `touch mise.lock && mise install`
+
+[settings.aqua]
+baked_registry = true # use baked-in aqua registry
+slsa = true # use SLSA to verify aqua tool signatures
+minisign = true # use minisign to verify aqua tool signatures
+cosign = true # use cosign to verify aqua tool signatures
+
+[settings.status]
+show_env = true   # show env vars when entering a mise directory
+show_tools = true # show configured tools when entering a mise directory
 
 [env]
-RMLVIEWER = { value = "{{ tools.rmlviewer.path }}/src/rmlviewer.py", tools = true }
+RMLWEAVER = { value = "{{ tools.rmlweaver.path }}/target/MappingWeaver-0.3.0.jar", tools = true }
 RMLMAPPER = { value = "{{ tools.rmlmapper.path }}/rmlmapper.jar", tools = true }
+RMLVIEWER = { value = "{{ tools.rmlviewer.path }}/src/rmlviewer.py", tools = true }
 
 [deps.pip]
 auto = true
@@ -22,6 +35,7 @@ mustache = "aqua:cbroglie/mustache"
 treefmt = "aqua:numtide/treefmt"
 quarto = "pipx:quarto-cli"
 rdfizer = "pipx:rdfizer"
+rmlweaver = "http:RMLio/MappingWeaver-java"
 rmlmapper = "github:RMLio/rmlmapper-java"
 rmlviewer = "http:RMLio/rmlviewer"
 
@@ -37,15 +51,34 @@ rmlmapper = { version = "latest", rename_exe = "rmlmapper.jar" }
 "vfox:lua" = "latest"
 "aqua:cbroglie/mustache" = "latest"
 
-[tools.rmlviewer]
-version = "133c0e7" # "v2.0.0"
-url = "https://api.github.com/repos/RMLio/rmlviewer/tarball/{{ version }}"
+"slsa-verifier" = "latest"
+"cosign" = "latest"
+"age" = "latest"
+"sops" = "latest"
+"usage" = "latest"
+tinytex = "latest"
+pandoc = "latest"
+pipx = "latest"
+maven = "latest"
+
+[tools.rmlweaver]
+version = "2b3ff94"
+url = "https://api.github.com/repos/RMLio/MappingWeaver-java/tarball/{{ version }}"
 format = "tar.gz"
 strip_components = 1
-postinstall = "mise x python -- pip install -r $MISE_TOOL_INSTALL_PATH/requirements.txt"
+postinstall = "mise x -C $MISE_TOOL_INSTALL_PATH java -- mvn -DskipTests package"
+bin_path = "target/"
+
+[tools.rmlviewer]
+version = "01695d9" # "v2.0.0-patch1"
+url = "https://api.github.com/repos/termontwouter/rmlviewer/tarball/{{ version }}"
+format = "tar.gz"
+strip_components = 1
+postinstall = "mise x -C $MISE_TOOL_INSTALL_PATH python -- pip install -r requirements.txt"
 
 [tasks]
 setup = "mise bootstrap"
+rmlweaver = "java -jar $RMLWEAVER"
 rmlmapper = "java -jar $RMLMAPPER"
 rmlviewer = "python -B $RMLVIEWER"
 rdfizer = "rdfizer"
