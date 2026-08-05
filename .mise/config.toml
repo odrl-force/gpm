@@ -1,10 +1,11 @@
 
 [settings]
-experimental = true
-minimum_release_age = "0s"
-github.oauth_client_id = "Iv23liLU5VXPnQQ9ONos" # apps/dev-gpm
-use_versions_host = true
 lockfile = true # use lockfiles = run `touch mise.lock && mise install`
+experimental = true
+use_versions_host = true
+minimum_release_age = "0s"
+disable_backends = ["asdf"]
+github.oauth_client_id = "Iv23liLU5VXPnQQ9ONos" # apps/dev-gpm
 
 [settings.aqua]
 baked_registry = true # use baked-in aqua registry
@@ -40,6 +41,15 @@ rmlmapper = "github:RMLio/rmlmapper-java"
 rmlviewer = "http:RMLio/rmlviewer"
 
 [tools]
+"slsa-verifier" = "latest"
+"cosign" = "latest"
+"age" = "latest"
+"sops" = "latest"
+"usage" = "latest"
+tinytex = "latest"
+pandoc = "latest"
+pipx = "latest"
+maven = "latest"
 quarto = "latest"
 treefmt = "latest"
 vale = { version = "latest", postinstall = "vale sync" }
@@ -51,15 +61,6 @@ rmlmapper = { version = "latest", rename_exe = "rmlmapper.jar" }
 "vfox:lua" = "latest"
 "aqua:cbroglie/mustache" = "latest"
 
-"slsa-verifier" = "latest"
-"cosign" = "latest"
-"age" = "latest"
-"sops" = "latest"
-"usage" = "latest"
-tinytex = "latest"
-pandoc = "latest"
-pipx = "latest"
-maven = "latest"
 
 [tools.rmlweaver]
 version = "2b3ff94"
