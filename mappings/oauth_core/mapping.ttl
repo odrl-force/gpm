@@ -10,11 +10,14 @@
 @prefix gpm:    <urn:example:gpm:> .
 @prefix nufb:   <urn:example:gpm:fallback:> .
 @prefix oauth:  <urn:example:gpm:fields:oauth:> .
-@prefix ops:    <urn:example:gpm:types:op:> .
 
 :view a rml:LogicalView ;
   rml:viewOn [
-    rml:source [ rml:path "{{{input}}}" ] ;
+    rml:source [
+      a rml:RelativePathSource ;
+      rml:root rml:MappingDirectory ;
+      rml:path "{{{input}}}"
+    ] ;
     rml:referenceFormulation rml:JSONPath ;
     rml:iterator "$" ] ;
   rml:field
@@ -45,7 +48,7 @@
   rml:logicalSource :view ;
   rml:subjectMap [
     rml:termType rml:BlankNode ;
-    rml:constant "req" ;
+    rml:template "req" ;
   ] ;
   rml:predicateObjectMap [
     rml:predicate gpm:client ;
@@ -63,11 +66,11 @@
   rml:logicalSource :view ;
   rml:subjectMap [
     rml:termType rml:BlankNode ;
-    rml:constant "opx" ;
+    rml:template "opx" ;
   ] ;
   rml:predicateObjectMap [
     rml:predicate gpm:type ;
-    rml:object ops:oauth_legacy ;
+    rml:object "oauth_legacy" ;
   ], [
     rml:predicate gpm:target ;
     rml:objectMap [

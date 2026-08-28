@@ -21,6 +21,10 @@ show_tools = true # show configured tools when entering a mise directory
 RMLWEAVER = { value = "{{ tools.rmlweaver.path }}/target/MappingWeaver-0.3.0.jar", tools = true }
 RMLMAPPER = { value = "{{ tools.rmlmapper.path }}/rmlmapper.jar", tools = true }
 RMLVIEWER = { value = "{{ tools.rmlviewer.path }}/src/rmlviewer.py", tools = true }
+RMLWEAVER_CMD = "java -jar --enable-native-access=ALL-UNNAMED --sun-misc-unsafe-memory-access=allow $RMLWEAVER"
+RMLMAPPER_CMD = "java -jar $RMLMAPPER"
+RMLVIEWER_CMD = "python -B $RMLVIEWER"
+RDFIZER_CMD = "rdfizer"
 
 [deps.pip]
 auto = true
@@ -36,9 +40,10 @@ mustache = "aqua:cbroglie/mustache"
 treefmt = "aqua:numtide/treefmt"
 quarto = "pipx:quarto-cli"
 rdfizer = "pipx:rdfizer"
+mappingloom = "http:RMLio/mappingloom-rs"
 rmlweaver = "http:RMLio/MappingWeaver-java"
-rmlmapper = "github:RMLio/rmlmapper-java"
 rmlviewer = "http:RMLio/rmlviewer"
+rmlmapper = "github:RMLio/rmlmapper-java"
 
 [tools]
 "slsa-verifier" = "latest"
@@ -61,13 +66,19 @@ rmlmapper = { version = "latest", rename_exe = "rmlmapper.jar" }
 "vfox:lua" = "latest"
 "aqua:cbroglie/mustache" = "latest"
 
+[tools.mappingloom]
+version = "9e3f409"
+url = "https://github.com/RMLio/mappingloom-rs/tarball/{{ version }}"
+format = "tar.gz"
+postinstall = "mise x -C $MISE_TOOL_INSTALL_PATH -- sh build_java.sh"
 
 [tools.rmlweaver]
-version = "2b3ff94"
+version = "b097b19"
 url = "https://api.github.com/repos/RMLio/MappingWeaver-java/tarball/{{ version }}"
 format = "tar.gz"
 strip_components = 1
-postinstall = "mise x -C $MISE_TOOL_INSTALL_PATH java -- mvn -DskipTests package"
+depends = ["mappingloom"]
+postinstall = "mise x -C $MISE_TOOL_INSTALL_PATH java -- mvn install -DskipTests package"
 bin_path = "target/"
 
 [tools.rmlviewer]
@@ -76,10 +87,3 @@ url = "https://api.github.com/repos/termontwouter/rmlviewer/tarball/{{ version }
 format = "tar.gz"
 strip_components = 1
 postinstall = "mise x -C $MISE_TOOL_INSTALL_PATH python -- pip install -r requirements.txt"
-
-[tasks]
-setup = "mise bootstrap"
-rmlweaver = "java -jar $RMLWEAVER"
-rmlmapper = "java -jar $RMLMAPPER"
-rmlviewer = "python -B $RMLVIEWER"
-rdfizer = "rdfizer"

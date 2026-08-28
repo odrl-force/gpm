@@ -4,25 +4,28 @@ local path = require("path")
 local fs = require("path.fs")
 local lustache = require("lustache")
 
-local tmappath, inpath, outpath = arg[1], arg[2], arg[3]
+local tmappath = path.abs(arg[1])
+local inpath   = path.abs(arg[2])
+local outpath  = path.abs(arg[3])
 
-if not tmappath or not inpath or not outpath then
-  error("Expected three file paths as arguments.")
-end
-if not path.isfile(tmappath) then
-  error("Mapping path '" .. tmappath .. "' is not a file.")
+if not path.exists(outpath) then
+  fs.makedirs(outpath) end
+
+if not path.isdir(outpath) then
+  error("Output path '" .. outpath .. "' is not a directory.")
 end
 if not path.isfile(inpath) then
   error("Input path '" .. inpath .. "' is not a file.")
 end
--- if path.exists(outpath) then
---   error("Output path '" .. outpath .. "' already exists.")
--- end
+if not path.isfile(tmappath) then
+  error("Mapping path '" .. inpath .. "' is not a file.")
+end
 
-local mappath = path.abs(fs.tmpdir(), "mapping.ttl")
+-- local mappath = path.abs(fs.tmpdir(), "mapping.ttl")
+local mappath = path(outpath, "_mapping.ttl")
 
 local tmapfile = assert(
-  io.open(path.abs(tmappath), "r"),
+  io.open(tmappath, "r"),
   "Could not read mapping template."
 )
 local mapfile = assert(
@@ -31,12 +34,18 @@ local mapfile = assert(
 )
 
 mapfile:write(lustache:render(tmapfile:read("*all"), {
-  input = path.abs(inpath)
+  input = path.rel(inpath, path.parent(mappath))
 }))
 
 tmapfile:close()
 mapfile:close()
 
-os.execute(table.concat({"mise rml:vw --", mappath, mappath .. ".nv"}, " "))
-os.execute(table.concat({"mise rml:mp --", mappath .. ".nv", path.abs(outpath)}, " "))
--- os.execute(table.concat({"mise rml:fz --", mappath, path.abs(outpath)}, " "))
+local out_vw = path(outpath, "vw.ttl")
+local out_mp = path(outpath, "mp.nq")
+local out_wv = path(outpath, "wv.nq")
+local out_fz = path(outpath, "fz")
+
+os.execute(table.concat({"mise rml:vw --", mappath, out_vw}, " "))
+os.execute(table.concat({"mise rml:mp --", out_vw, out_mp}, " "))
+os.execute(table.concat({"mise rml:wv --", mappath, out_wv}, " "))
+os.execute(table.concat({"mise rml:fz --", mappath, out_fz}, " "))

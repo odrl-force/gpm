@@ -1,0 +1,20 @@
+#!/usr/bin/env lua
+
+local path = require("path")
+local fs = require("path.fs")
+local lustache = require("lustache")
+
+local mappath, outpath = arg[1], arg[2]
+
+if not mappath or not outpath then
+  error("Expected two file paths as arguments.")
+end
+if not path.isfile(mappath) then
+  error("Mapping path '" .. mappath .. "' is not a file.")
+end
+-- if path.exists(outpath) then
+--   error("Output path '" .. outpath .. "' already exists.")
+-- end
+
+os.execute(table.concat({"$RMLWEAVER_CMD -m", path.abs(mappath), ">", path.abs(outpath)}, " "))
+-- os.execute(table.concat({"mise rmlweaver -- -m", path.abs(mappath), ">", path.abs(outpath)}, " "))

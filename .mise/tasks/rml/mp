@@ -36,4 +36,6 @@ cfgfile:write(lustache:render(tcfgfile:read("*all"), {
 tcfgfile:close()
 cfgfile:close()
 
-os.execute(table.concat({"mise rmlmapper -- -c", cfgpath}, " "))
+fs.chdir(path.parent(mappath))
+
+os.execute(table.concat({"$RMLMAPPER_CMD -c", cfgpath}, " "))

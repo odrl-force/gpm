@@ -37,4 +37,6 @@ cfgfile:write(lustache:render(tcfgfile:read("*all"), {
 tcfgfile:close()
 cfgfile:close()
 
-os.execute(table.concat({"mise rdfizer -- -c", cfgpath}, " "))
+fs.chdir(path.parent(mappath))
+
+os.execute(table.concat({"$RDFIZER_CMD -c", cfgpath}, " "))
