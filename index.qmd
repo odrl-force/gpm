@@ -3,5 +3,12 @@
 
 - [Repository](https://github.com/odrl-force/gpm)
 - [Specification](spec/index.html) (draft)
+  - [OAuth 2.x profile](spec/profiles/oauth.html)
+  - [UMA profile](spec/profiles/uma.html)
+  - [GNAP profile](spec/profiles/gnap.html)
+  - [OIDC](spec/profiles/oidc.html)
+  - [OpenID](spec/profiles/openid.html)
+  - [ODRL](spec/profiles/odrl.html)
+  - [Dataspaces](spec/profiles/dataspaces.html)
 - [Mapping examples](spec/index.html)
 - [Paper](paper/index.pdf) (draft)
