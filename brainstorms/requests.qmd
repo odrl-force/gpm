@@ -358,7 +358,7 @@ URI of authorization server for trust domain B
 : OPTIONAL. Maximum Authentication Age. Specifies the allowable elapsed time in seconds since the last time the End-User was actively authenticated by the OP. If the elapsed time is greater than this value, the OP MUST attempt to actively re-authenticate the End-User ... When `max_age` is used, the ID Token returned must include an `auth_time` Claim Value. Note that `max_age=0` is equivalent to `prompt=login`. (RFC 9470: This value indicates the allowable elapsed time in seconds since the last active authentication event associated with the access token. An active authentication event entails a user interacting with the authorization server in response to an authentication prompt.)
 
 `client_notification_token` (@openid-client-initiated-backchannel-authentication)
-: REQUIRED \[for] Ping or Push modes. A bearer token [@rfc6750] provided by the Client that will be used by the OpenID Provider to authenticate the callback request to the Client.
+: REQUIRED \[for] Ping or Push modes. A bearer token~[@rfc6750] provided by the Client that will be used by the OpenID Provider to authenticate the callback request to the Client.
 
 `login_hint` (OIDC; @openid-client-initiated-backchannel-authentication)
 : OPTIONAL. Hint to the Authorization Server about the login identifier \[e.g. email, phone, address, username] the End-User might use to log in (if necessary). This hint can be used by an RP if it first asks the End-User for their e-mail address (or other identifier) and then wants to pass that value as a hint to the discovered authorization service.

@@ -3,15 +3,17 @@
 
 # Information in a request
 
-Starting from the OAuth 2.x token request -- the archetypal yet somewhat ill-named authorization request -- we discern a number of functions the contents of the message serve.
+Starting from the OAuth 2.x token request -- the archetypal yet somewhat ill-named authorization request -- we discern a number of functions the contents of a message serve.
 
 {{< include _parts/sec-target-action.qmd >}}
+
+{{< include _parts/sec-roles.qmd >}}
 
 
 <!-- rdf:type/@type/type == format ? profile ? -->
 
-\appendix
+<!-- \appendix -->
 
-{{< include _parts/app-mappings.qmd >}}
+<!-- {{< include _parts/app-mappings.qmd >}} -->
 
 <!-- {{< include _parts/app-requests.qmd >}} -->

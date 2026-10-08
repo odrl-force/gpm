@@ -1,7 +1,7 @@
 
 # Sketchpad for unification of nonces
 
-The nonce challenge at the same time serves as a CSRF protection. However, if cryptographic holder binding is not used, the nonce challenge cannot serve this function. [@openid:security]
+The nonce challenge at the same time serves as a CSRF protection. However, if cryptographic holder binding is not used, the nonce challenge cannot serve this function.~[@openid:security]
 
 ```yaml
 

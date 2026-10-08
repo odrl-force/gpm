@@ -4,13 +4,13 @@
 
 ### OAuth & GNAP
 
-Central to the purpose of an authorization request is its **scope**: the extent to which an eventual grant applies, i.e., ***what*** one requests -- and is subsequently allowed or denied -- to do. Initially crammed in the eponymous `scope` parameter, a space-delimited list of opaque strings, the heterogeneity of this aspect requires a much more flexible model. While "scope is typically about *what \[type of] access* is being requested rather than where that access will be redeemed" [@rfc8707], the parameter is often overloaded to convey the *identity*, *location*, or *type* of the protected resource, as well as the *extent* of authorized *actions*. A good example is the custom scope format of the OAuth 2.0 profile for Fast Healthcare Interoperability Resources (FHIR), which is of the form `[type]/[identity].[action]`.^[https://openid.net/specs/openid-heart-fhir-oauth2-1_0.html]
+Central to the purpose of an authorization request is its **scope**: the extent to which an eventual grant applies, i.e., ***what*** one requests -- and is subsequently allowed or denied -- to do. Initially crammed in the eponymous `scope` parameter, a space-delimited list of opaque strings, the heterogeneity of this aspect requires a much more flexible model. While "scope is typically about *what \[type of] access* is being requested rather than where that access will be redeemed"~[@rfc8707], the parameter is often overloaded to convey the *identity*, *location*, or *type* of the protected resource, as well as the *extent* of authorized *actions*. A good example is the custom scope format of the OAuth 2.0 profile for Fast Healthcare Interoperability Resources (FHIR), which is of the form `[type]/[identity].[action]`.^[https://openid.net/specs/openid-heart-fhir-oauth2-1_0.html]
 
-One underappreciated upgrade was therefore the addition of *Resource Indicators* under the `resource` parameter: one or more (absolute) URIs representing (the identity of) "the **target** service or resource to which access is being requested" [@rfc8707]. In UMA, we see this division reflected in the *ticket request*: the `resource_id` parameter identifies "a resource to which the resource server is requesting a permission on behalf of the client," while the `resource_scopes` parameter references "\[the] scopes to which the resource server is requesting access for this resource" [@uma:fed].
+One underappreciated upgrade was therefore the addition of *Resource Indicators* under the `resource` parameter: one or more (absolute) URIs representing (the identity of) "the **target** service or resource to which access is being requested"~[@rfc8707]. In UMA, we see this division reflected in the *ticket request*: the `resource_id` parameter identifies "a resource to which the resource server is requesting a permission on behalf of the client," while the `resource_scopes` parameter references "\[the] scopes to which the resource server is requesting access for this resource"~[@uma:fed].
 
-Another important progression came in the form of *Rich Authorization Requests*: an array of freely typed JSON structures to specify fine-grained authorization requirements under the `authorization_details` parameter [@rfc9396]. The GNAP specification also cements this flexible pattern firmly in its access request model, but places the array under the JSON path `access_token.access`, thereby losing compatibility with the original RAR messages [@gnap].
+Another important progression came in the form of *Rich Authorization Requests*: an array of freely typed JSON structures to specify fine-grained authorization requirements under the `authorization_details` parameter~[@rfc9396]. The GNAP specification also cements this flexible pattern firmly in its access request model, but places the array under the JSON path `access_token.access`, thereby losing compatibility with the original RAR messages~[@gnap].
 
-The details that are allowed in each RAR structure are indicated by a `type` parameter. The specification also proposes a number of common details. On the one hand, the target resource can be indicated by its `identifier` and/or its (server) `location`. On the other hand, the scope can be expressed as `privileges` with respect to the resource, `actions` to be taken at the resource, and/or `datatypes` in which the resource should be represented [@rfc9396].
+The details that are allowed in each RAR structure are indicated by a `type` parameter. The specification also proposes a number of common details. On the one hand, the target resource can be indicated by its `identifier` and/or its (server) `location`. On the other hand, the scope can be expressed as `privileges` with respect to the resource, `actions` to be taken at the resource, and/or `datatypes` in which the resource should be represented~[@rfc9396].
 
 
 ### ODRL & Data Spaces
@@ -43,7 +43,7 @@ OpenID4VP also adds the ability to suggest several `claim_sets` and `credential_
 
 ### Abstract syntax {-}
 
-The syntax for specifying the target and scope of an access request, as discussed above, is summarized in [@tbl-target-scope]. Based on this information, we distinguish the following semantic aspects that can be communicated by (the union of) these formats.
+The syntax for specifying the target and scope of an policy request, as discussed above, is summarized in~[@tbl-target-scope]. Based on this information, we distinguish the following semantic aspects that can be communicated by (the union of) these formats.
 
 - The **target** of the request:
   - as a resource indicator (RI);
@@ -88,79 +88,7 @@ We now propose an abstract syntax that captures these aspects in a uniform way, 
   details?: OperationDetails                       # alias
   [policy].access?: OperationDetails               # alias (shared): GNAP
   [root].authorization_details?: OperationDetails  # alias (global): OAuth RAR
-  [root].ticket?: OperationDetails | string        # alias (global): UMA -->
-
-
-#### Operations
-
-`Operation`
-: That to which a rule applies.
-
-An operation has the following information.
-
-`@id` <!-- alias `(u)id` ? `identifier` ? -->
-: RECOMMENDED IRI[]. An identifier of the operation.
-
-  Mappings:
-  - Data Spaces: `iri("offer.@id")` (absent if derived from dataset; opt. unique)
-  - ODRL (Policy): `iri("uid")` (req. unique)
-
-`rdf:type` <!-- alias `format` ? -->
-: RECOMMENDED IRI[]. The type of the operation. <!-- This determines the format of this object, i.e., how its parameters are to be interpreted. -->
-
-  Mappings:
-  - GNAP: `iri("access_token.access[].type")` (req.)
-  - OAuth, RAR: `iri("authorization_details[*].type")` (req.)
-
-`target` <!-- alias `asset` ? `resource` ? -->
-: RECOMMENDED Asset[] <!-- (or AssetCollection) -->. The asset(s) targeted by the operation.
-
-  Mappings:
-  - RI: `Assets("resource")` (req. unique)
-  - UMA: `Assets("resource_id")` (req. unique; in ticket)
-  - RAR: `Assets("authorization_details[*].identifier"`) (opt. unique)
-  - GNAP: `Assets("access_token.access[*].identifier")` (opt. unique)
-  <!-- - RAR: `Assets("authorization_details[*].location"`) (opt. unique) -->
-  <!-- - GNAP: `Assets("access_token.access[*].location")` (opt. unique) -->
-  - Data Spaces (absent if derived from dataset):
-    - `Assets("offer.target")` (shared; opt. unique)
-  - ODRL (Policy):
-    - `Assets("target")` (shared short; opt. unique)
-    - `Assets("target.uid")` (shared; opt. unique)
-    - `Assets("<rule>[*].target")` (short; opt. unique)
-    - `Assets("<rule>[*].target.uid")` (req. unique)
-  - OIDC:
-    - `Assets("claims.id_token")` (opt.)
-    - `Assets("claims.userinfo")` (opt.)
-  - OpenID4VCI:
-    - `Assets("credential_configuration_id")` (req. unique)
-    - `Assets("authorization_details[*].claims[*]")` (opt.)
-  - OpenID4VP:
-    - `Assets("dcql_query.credentials[*]")` (opt.)
-    - `Assets("dcql_query.credentials[*].claims[*]")` (opt.)
-
-`action`
-: RECOMMENDED Action[]. The action(s) that the operation would perform.
-
-  Mappings:
-  - OAuth: `Actions("scope")` (opt. unique)
-  - UMA: `Actions("resource_scopes")` (req. unique; in ticket)
-  - RAR:
-    - `Actions("authorization_details[*].actions")` (opt. unique)
-    - `Actions("authorization_details[*].privileges")` (opt. unique)
-    - `Actions("authorization_details[*].datatypes")` (opt. unique)
-  - GNAP:
-    - `Actions("access_token.access[*].actions")` (opt. unique)
-    - `Actions("access_token.access[*].privileges")` (opt. unique)
-    - `Actions("access_token.access[*].datatypes")` (opt. unique)
-  - Data Spaces (absent if derived from dataset):
-    - `Actions("offer.<rule>[*].action")` (opt. unique)
-  - ODRL (Policy):
-    - `Actions("action")` (shared short; opt. unique)
-    - `Actions("action.uid")` (shared; opt. unique)
-    - `Actions("<rule>.action")` (short; opt. unique)
-    - `Actions("<rule>.action.uid")` (req. unique)
-  - OIDC, OpenID4VCI, OpenID4VP: `static({ @id: "openid:read" })`
+  [root].ticket?: OperationDetails | string        # alias (global): UMA -->`
 
 +-------------+-------------------------------+-------------------------------+
 |    Spec.    |            Target             |             Scope             |
