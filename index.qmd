@@ -1,7 +1,7 @@
 
 # Generalized Policy Management
 
-- [Repository](https://github.com/odrl-force/gpm)
+- [Paper](paper/index.pdf) (draft)
 - [Specification](spec/index.html) (draft)
   - [OAuth 2.x profile](spec/profiles/oauth.html)
   - [UMA profile](spec/profiles/uma.html)
@@ -11,4 +11,4 @@
   - [ODRL](spec/profiles/odrl.html)
   - [Dataspaces](spec/profiles/dataspaces.html)
 - [Mapping examples](spec/index.html)
-- [Paper](paper/index.pdf) (draft)
+- [Repository](https://github.com/odrl-force/gpm)
