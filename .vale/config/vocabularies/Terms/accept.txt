@@ -15,7 +15,10 @@ facto
 @openid
 OpenID
 OAuth
-URIs?
+IETF
+Kantara
+Dataspaces?
+URIs?|uri
 JWTs?
 HTTPS?
 https?:.*
