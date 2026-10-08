@@ -1,0 +1,155 @@
+
+## Policy Request Model
+
+This section introduces the generalized conceptual model for policy requests. It names the different informational aspects of a request message, and lists their corresponding representations in each of the mapped frameworks.
+
+...
+
+
+### Formatted values {-}
+
+A **<dfn>formatted value</dfn>** consists of an **actual value**, and a **format** indicating how to interpret the value, optionally complemented by additional format-dependent parameters.
+
+
+### Roles
+
+A policy request message conveys *who* it applies to. **<dfn>Roles</dfn>** represent the different ways in which entities can relate to a policy. They can be characterized according to their function along two axes:
+
+  1. **Conceptual** (*legal -- operational -- technical*): whether it concerns a ***party*** capable of bearing *legal responsibility*; an ***organization*** *operating on behalf of* such a legal party; or a ***participant*** carrying out the *technical execution* using *software agents*.
+
+  1. **Functional** (*provisioning -- consumption -- (negotiation)*): whether it concerns entities involved in providing the data or service, entities involved in the consumption of it, or entities negotiating between the two.
+
+Along these two dimensions, this specification defines the following roles.
+
+  **<dfn>(end-)user</dfn>** (a.k.a. *recipient*, *requesting party*)
+  : The *legal party* on whose behalf the requested operation will be performed.
+
+    <!-- **<dfn>owner</dfn>**
+    : The *legal party* on whose behalf authorization is ultimately granted or denied. When not explicitly identified, this role is subsumed by the user. -->
+
+  **<dfn>manager</dfn>** (a.k.a. *holder*)
+  : The *legal party* that controls whether the requested authorization is granted or denied.
+  <!-- When not explicitly identified, this role is subsumed by the requesting user. -->
+
+    <!-- **<dfn>(manager) client</dfn>** ([technical role]{.smallcaps})
+    : The *acting application* who grants or denies authorization (e.g., data providers). The entity fulfilling this role is typically not explicitly identified. -->
+
+  **<dfn>consumers</dfn>**
+  : *Participants* that use data or other services through clients.
+
+  **<dfn>clients</dfn>**
+  : *Software agents* involved in a consumer's usage of data or other services.
+
+  **<dfn>providers</dfn>**
+  : *Participants* that provide data or other services through servers.
+
+    audience (logical name) = AS-local indication of the target service (provider)
+    Trust Domain name (OAuth Transaction Tokens)
+
+    origin (URI) = global indication of the target RS
+
+    realm (logical name) = RS-local indication of the target domain (of creds)
+
+    protection space = global indication of the target domain (of cred), defined by the origin of the server being accessed, plus a realm value
+
+    resource (URI) = global indication of the target service or resource, as a context for the AS to determine further details
+
+    Audience:
+      - A value that identifies the party or parties intended to process the assertion.
+      - Name of a Trust Domain: a logical grouping of systems that share a common set of security controls and policies resource.
+      - Well known/logical name of authorization server for trust domain B -- where resource parameter is _URI_ of authorization server for trust domain B.
+
+  **<dfn>server</dfn>**
+  : *Software agents* involved in a provider's provisioning of data or other services.
+
+<!-- **<dfn>subject</dfn>**
+  : The *legal party* on whose behalf a policy request is made, and who bears the ultimate responsibility for adherence to an eventual agreement. -->
+
+::: {.callout-note}
+In the majority of use cases, at least some of these roles will be absent (e.g., when there is no delegation), or multiple roles will be fulfilled by the same entity (e.g., a single application requesting permission to perform an action itself; a party authorizing an application they are currently using).
+:::
+
+::: {.callout-note}
+Although no specific term is defined for *delegating applications* at the *requesting or authorizing side*, such orchestrator-like roles are not inconceivable.
+:::
+
+::: {.callout-note}
+Throughout this text, the term '*client*' refers specifically to the application carrying out the process to which the sentence in which it occurs applies, while the term '*agent*' is reserved for applications
+:::
+
+
+### Identification & authentication
+
+The information pertaining different roles primarily serves to identify the entities involved, by combining any of the following properties.
+
+  **<dfn>key</dfn>** <!--  alias `jwk(s)(_uri)` -->
+  : A formatted value (authoritatively) representing one or more cryptographic keys of the entity.
+
+  **<dfn>assertion</dfn>** <!-- alias `credential` -->
+  : A formatted value (authoritatively) representing one or more verifiable claims about the entity.
+
+  **<dfn>identifier</dfn>** <!-- alias `(@|u|p)id` -->
+  : A formatted value (informally) identifying the entity in a certain context.
+
+  **<dfn>class</dfn>** <!--  alias `type|partOf ... format ?` -->
+  : A formatted value (informally) representing a group of entities to which the entity belongs.
+
+  **<dfn>display</dfn>** <!--  alias `brand(ing)` -->
+  : A formatted value (informally) providing human-readable material representing the entity.
+
+  **<dfn>link</dfn>** <!--  alias `ref|see|cf|other` -->
+  : A formatted value (informally) linking to further information about the entity.
+
+
+### Operations
+
+**<dfn>Operations</dfn>** are patterns that describe to which events rules apply. They link actions with each of the roles involved in them, and comprise of the following properties.
+
+  **<dfn>identifier</dfn>** <!-- alias `(@|u)id` -->
+  : A formatted value (informally) identifying the operation.
+
+  **<dfn>class</dfn>** <!--  alias `format ... type|partOf?` -->
+  : A formatted value (informally) representing a type of operation.
+
+  **<dfn>target</dfn>** <!-- alias `object|asset|resource` -->
+  : ... identifying one or more assets targeted by the operation.
+
+  **<dfn>action</dfn>** <!-- alias `scope` -->
+  : ... describing one ore more actions that the operation would perform.
+
+  **<dfn>actor</dfn>** <!-- alias `assignee|consumer|user` -->
+  : ... identifying one or more parties who would execute the action(s) on the target(s).
+
+  **<dfn>agent</dfn>** <!-- alias `client?` -->
+  : ... identifying the software instances which would execute the action(s) on the target(s).
+
+
+### Rules & policies
+
+**<dfn>Rules</dfn>** are *modal statements* about an operation. They consist of the following properties.
+
+  **<dfn>operation</dfn>**
+  : The operation which forms the content of the statement.
+
+  **<dfn>mode</dfn>**
+  : A term indicating the modality of the statement. This specification defines three modal terms: `authorization`, `prohibition`, `obligation`.
+
+**<dfn>Policies</dfn>** bundle rules requested and/or managed by the same parties. They include the following properties.
+
+  **<dfn>rule</dfn>**
+  : ...
+
+  **<dfn>subject</dfn>**
+  : ... identifying the party on whose behalf the policy is requested.
+
+  **<dfn>requester</dfn>**
+  : ... identifying the party who actually requests the policy.
+
+  **<dfn>client</dfn>**
+  : ... identifying the application used to requests the policy.
+
+  **<dfn>owner</dfn>**
+  : ... identifying the party on whose behalf authorization would ultimately be granted or denied.
+
+  **<dfn>manager</dfn>** <!-- alias `controller/assigner/provider` ? -->
+  : ... identifying the party who would actually grant or deny authorization.

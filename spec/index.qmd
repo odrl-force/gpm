@@ -16,19 +16,14 @@ Rather than providing yet another alternative to these historical behemoths and 
   - providing mappings between the proposed model and each of the existing frameworks; and
   - binding similar steps in the protocols to their counterpart in an generic, abstract flow.
 
+::: {.callout-warning}
+# To do
 
-## Terminology
+List generalized specs
+:::
 
-...
+<!---------------------------------------------------------------------------->
 
----
----
+{{< include _parts/terms.qmd >}}
 
-{{< include parts/model.qmd >}}
-
-<style>
-.spec {
-  font-variant: small-caps;
-  color: darkred;
-}
-</style>
+{{< include _parts/model.qmd >}}
