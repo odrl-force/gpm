@@ -1,0 +1,85 @@
+---
+title: Generalized Policy Management profile for User Managed Access
+---
+
+## Introduction
+
+*This section is not normative.*
+
+This document provides a mapping profile for Generalized Policy Management (GPM), targeting the Kantara Initiative's *User-Managed Access* (UMA) extensions for OAuth 2.0. In particular, it maps parameters of the following specifications on the GPM model.
+
+  - *User-Managed Access Grant for OAuth 2.0*
+  - *Federated Authorization for UMA*
+
+
+## Mapping UMA to GPM
+
+The UMA framework defines request parameters for several protocol endpoints. This document specifies GPM mappings for the **ticket request**~[@map-ticket] and the **token request**~[@map-token].
+
+
+### Ticket request {#map-ticket}
+
+UMA ticket requests, defined in *Federated Authorization for UMA*, consists either of a single JSON request object, or of a JSON array of such objects. Each request object contains the following *required* parameters.
+
+  - `resource_id`: an AS-defined *unique string*, identifying the resource the request is concerned with.
+
+  - `resource_scopes`: an array of AS-defined *strings*, representing the scopes the request is concerned with.
+
+**Mappings**:
+
+An UMA ticket request maps to a single Policy, which MUST contain one rule for each `resource_scope` element of each request object, such that
+
+  - the *mode* of the rule is `authorization`;
+
+  - the *type* of the rule's operation is set to `urn:example:gpm:ops:uma`;
+
+  - the *action* of the rule's operation is set to the value of the `resource_scope` element, prefixed with `urn:example:gpm:fallback:` if the value is not a valid IRI;
+
+  - the *target* of the rule's operation is set to the value of the corresponding `resource_id` property, prefixed with `urn:example:gpm:fallback:` if the value is not a valid IRI.
+
+
+### Token request {#map-token}
+
+UMA token requests are OAuth 2.0 token requests. Their mapping therefore depends on the GPM OAuth 2.x profile<!--, in particular for the (required) `grant_type` and (optional) `scope` properties-->.
+
+In addition, the requests can contain the following parameters, defined in *User-Managed Access Grant for OAuth 2.0*.
+
+
+#### `ticket`
+
+The `ticket` property is required, with as value an AS-defined *unique string* handle, identifying a set of *request objects* defined in an earlier *ticket request*. the most recent permission ticket received by the client as part of this authorization process.
+
+<!--
+#### `claim_token`
+
+The `claim_token` property is defined by the User-Managed Access Grant for OAuth 2.0, as optional.
+: OPTIONAL \[always with `claim_token_format`]. A string containing directly pushed claim information in the indicated format.
+
+
+#### `claim_token_format`
+
+The `claim_token_format` property is defined by the User-Managed Access Grant for OAuth 2.0, as optional.
+: OPTIONAL \[always with `claim_token`]. A string specifying the format of the claim token in which the client is directly pushing claims to the authorization server.
+
+
+#### `pct`
+
+The `pct` property is defined by the User-Managed Access Grant for OAuth 2.0, as optional.
+: OPTIONAL. The Persistent Claim Token \[previously returned by the authorization server] in order to optimize the process of seeking a new Requesting Party Token \[i.e., access token].
+
+
+#### `rpt`
+
+The `rpt` property is defined by the User-Managed Access Grant for OAuth 2.0, as optional.
+: OPTIONAL. An existing Requesting Party Token \[i.e., access token] (which MAY be expired) \[which] gives the authorization server the option of upgrading that Requesting Party Token \[i.e., access token] instead of issuing a new one. -->
+
+**Mappings**:
+
+An UMA token request maps to a single Policy, which *extends* the one resulting from applying the *ticket request* mapping to the parameters of the request corresponding to the value of the `ticket` property.
+
+<!-- TODO: integrate additional scope values -->
+
+
+## Mapping GPM to UMA
+
+...

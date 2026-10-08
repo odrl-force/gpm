@@ -1,0 +1,333 @@
+---
+title: Generalized Policy Management profile for OAuth 2.x
+---
+
+## Introduction
+
+*This section is not normative.*
+
+This document provides a mapping profile for Generalized Policy Management (GPM), targeting the OAuth 2.x Authorization Framework. In particular, it maps parameters of the following specifications on the GPM model.
+
+  - RFC 6749
+  - RFC 7521
+  <!-- - RFC 7523 -->
+  - RFC 7636
+  <!-- - RFC 8485 -->
+  <!-- - RFC 8628 -->
+  <!-- - RFC 8693 -->
+  - RFC 8707
+  - RFC 9101
+  - RFC 9126
+  <!-- - RFC 9200 -->
+  <!-- - RFC 9201 -->
+  - RFC 9396
+  <!-- - RFC 9449 -->
+  <!-- - RFC 9470 -->
+
+  - @oauth-client-id-metadata-document
+
+  - @draft-ietf-oauth-transaction-tokens-07
+  - @draft-ietf-oauth-identity-chaining
+  <!-- - @draft-ietf-oauth-browser-based-apps -->
+  <!-- - @draft-ietf-oauth-first-party-apps -->
+  <!-- - @draft-ietf-oauth-identity-assertion-authz-grant -->
+
+  <!-- - @draft-li-oauth-delegated-authorization -->
+  <!-- - @draft-zehavi-oauth-app2app-browserless -->
+
+  - OAuth 2.0 Multiple Response Type Encoding Practices (OpenID)
+  <!-- - @openid-client-initiated-backchannel-authentication -->
+  <!-- - @openid-connect-modrna-authentication-1_0 -->
+  <!-- - @openid-igov-oauth2 -->
+
+It also takes into account the considerations from the following specifications.
+
+  <!-- - RFC 6819 -->
+  <!-- - BCP 225 -->
+    <!-- - RFC 8725 -->
+    <!-- - @draft-ietf-oauth-RFC 8725bis -->
+    <!-- - @draft-ietf-oauth-browser-based-apps -->
+
+  - BCP 240
+    - RFC 9700
+    <!-- - @draft-ietf-oauth-security-topics-update -->
+
+
+## Mapping OAuth 2.x to GPM
+
+RFC 6749 defines the request parameters for several protocol flows and endpoints. This document specifies GPM mappings for the **authorization request**~[@map-authz] and the **token request**~[@map-token]. Parameters that can occur in both kinds of requests are addressed first~[@map-common].
+
+
+### Common request parameters {#map-common}
+
+The following parameters can occur in the authorization request as well as in the token request, depending on the OAuth 2.x protocol flow.
+
+All OAuth 2.x requests map to a single Policy, which MUST only contain `authorization` Rules.
+
+
+#### `scope`
+
+The `scope` property is defined in RFC 6749 as optional, but required by several OAuth 2.0 extensions. Its value is a *space-delimited list of case-sensitive strings*, representing a set of scopes (defined by the authorization server), which outline the type of access the request is concerned with.
+<!-- \[It] must not include any scope not originally granted by the resource owner, and if omitted is treated as equal to the scope originally granted by the resource owner. -->
+
+**Mappings**:
+
+If an OAuth 2.x requests contains the `scope` property, then for each combination of other rule parameters, the mapping MUST contain one rule per listed scope, such that
+
+  - the *mode* of the rule is `authorization`;
+
+  - the *type* of the rule's operation is set to `urn:example:gpm:ops:oauth_legacy`;
+
+  - the *action* of the rule's operation is set to the value of the `scope` property, prefixed with `urn:example:gpm:fallback:` if the value is not a valid IRI.
+
+
+#### `resource`
+
+The `resource` property is defined in RFC 8707 (*Resource Indicators for OAuth 2.0*) as optional.^[It is required by the *OAuth Identity and Authorization Chaining* (draft) when no `audience` property is present] Its value is an *absolute URI* or an *array of absolute URIs* (when the property occurs multiple times), representing the identity of the "target" service or resource the request is concerned with.
+<!-- URI of authorization server for trust domain B -->
+
+**Mappings**:
+
+If an OAuth 2.x requests contains the `resource` property, then for each combination of other rule parameters, the mapping MUST contain one rule per listed scope, such that the *provider* of the rule's *operation* is an object with as *location* the value of the `resource` property, prefixed with `urn:example:gpm:fallback:` if it is not a valid IRI.
+
+
+#### `authorization_details`
+
+The `authorization_details` property is defined in RFC 9396 (*Rich Authorization Requests*) as optional. Its value is an *array of objects*, each of which represents an independent set of authorization requirements the request is concerned with. RFC 9396 lists a minimal, extendable set of fields each object in the array can contain.
+<!-- The type of resource or access requirement is determined by the `type` field ... An `authorization_details` array MAY contain multiple entries of the same type. -->
+
+  - The `type` field, required by RFC 9396, has as value a *unique string*, which determines the kind of requirements the object can contain.
+  <!-- The value is unique for the described API in the context of the AS. -->
+`identifier`
+
+  - The optional `actions` field has as value an *array of strings*, representing the "kinds of actions" this authorization requirement is concerned with.
+
+  - The optional `privileges` field has as value an *array of strings*, representing the "levels of privilege" this authorization requirement is concerned with.
+
+  - The optional `datatypes` field has as value an *array of strings*, representing the "kinds of data" this authorization requirement is concerned with.
+
+  - The optional `identifier` field has as value a *unique string*, "identifying" a specific resource in the context of this authorization requirement.
+
+  - The optional `locations` field has as value an *array of strings*, representing the "location" of the resource this authorization requirement is concerned with, typically the URI of the RS.
+  <!-- OpenID4VCI: If the Credential Issuer metadata contains an `authorization_servers` parameter, the authorization detail's `locations` common data field MUST be set to the Credential Issuer Identifier value. -->
+
+A single authorization details object represents the authorization requirements for each combination of values from its fields, i.e., for each entry in their product set.
+
+**Mappings**:
+
+If an OAuth 2.x requests contains the `authorization_details` property, then for each authorization details object, the mapping MUST contain a single rule per entry in the product set of that object's parameters, such that
+
+  - the *mode* of the rule is `authorization`;
+
+  - the *type* of the rule's *operation* is the value of the entry's `type` property, prefixed with `urn:example:gpm:fallback:` if the value is not a valid IRI;
+
+  - the *action* of the rule's *operation* is an object with
+
+    - the value of the entry's `privileges` property -- if any -- as *type*, prefixed with `urn:example:gpm:fallback:` if the value is not a valid IRI;
+
+    - the value of the entry's `actions` property -- if any -- as *id*, prefixed with `urn:example:gpm:fallback:` if the value is not a valid IRI;
+
+  - the *target* of the rule's *operation* is an object with
+
+    - the value of the entry's `datatypes` property -- if any -- as *type*, prefixed with `urn:example:gpm:fallback:` if the value is not a valid IRI,
+
+    - the value of the entry's `identifier` property -- if any -- as *id*, prefixed with `urn:example:gpm:fallback:` if the value is not a valid IRI;
+
+  - the *provider* of the rule's *operation* is an object with
+
+    - the value of the entry's `locations` property -- if any -- as *location*, prefixed with `urn:example:gpm:fallback:` if the value is not a valid IRI.
+
+
+#### `client_id`
+
+The `client_id` property is defined in RFC 6749 as required -- at least as far as the client identification mechanism needs it.^[In RFC 7521 (Assertion Framework for OAuth 2.0), for example, the property is unnecessary when the client is already identified by the subject of an assertion; if present, both properties must identify the same client. To contrast, in the *OAuth Client ID Metadata Document* (draft), the property is always required.] Its value is a *unique string*,^[For RFC 9101 (OAuth 2.0 JWT-secured Authorization Request), the value must match the *request object's* `client_id` parameter. In the *OAuth Client ID Metadata Document* (draft), its value must be a URL.] which functions as an opaque handle that identifies the client within the context of the AS. Typically, it is issued by the latter, and bound to the registered information of provided by the former.
+
+**Mappings**:
+
+If an OAuth 2.x requests contains the `client_id` property, the *consumer* of the operation of each rule in its mapping MUST be an object with the value of the `client_id` property as *client*, prefixed with `urn:example:gpm:fallback:` if the value is not a valid IRI.
+
+
+### Authorization request parameters {#map-authz}
+
+The following additional parameters can occur in OAuth 2.x **authorization requests**. They MUST be processed together with the mappings defined in~[@map-common], resulting in a single Policy containing only `authorization` Rules.
+
+With the introduction of RFC 9101 (*OAuth 2.0 JWT-Secured Authorization Request*) and RFC 9126 (*OAuth 2.0 Pushed Authorization Request*), authorization request parameters can also be defined in a *Request Object*, transferred either as a JWT value in the `request` property, or as an absolute URI reference to a JSON document in the `request_uri` property. To process an OAuth 2.x request in which either of these properties is present, the request parameters MUST be taken from Request Object in question.
+
+
+#### `response_type`
+
+The `response_type` property is defined by RFC 6749 as required. Its value is a string containing a *space-delimited sequence of labels*, which represent the protocol flows the client wants to use, and determine further parameters for the interaction.
+
+**Mappings**:
+
+
+#### `response_mode`
+
+The `response_mode` property is defined in OpenID's *OAuth 2.0 Multiple Response Type Encoding Practices*, as optional. Its value is a string, indicating how the AS should return parameters to the client  in response to authorization request.
+
+**Mappings**:
+
+
+#### `redirect_uri`
+
+The `redirect_uri` property is defined by RFC 6749 as required, unless the client is registered with exactly one redirect URI. Its value is a string, namely one of the (absolute) URIs -- previously established with the AS -- to which the AS will redirect the user-agent when the interaction is finished.
+
+**Mappings**:
+
+
+#### `state`
+
+The `state` property is defined in RFC 6749 as *recommended*. Its value is a string, which functions as an opaque nonce, provided by the client and returned by the AS to maintain a link between request and callback.
+
+**Mappings**:
+
+
+#### `code_challenge`
+
+The `code_challenge` property is defined in RFC 7636 as *required*, and is taken up by RFC 9700 (BCP 240) as *required* for public clients and *recommended* for private clients, if the `grant_type` is `authorization_code`.^[It is also required for OAuth 2.1 (draft).] Its value is a string, namely the PKCE code challenge derived from the code verifier.
+
+
+#### `code_challenge_method`
+
+The `code_challenge_method` property is defined in RFC 7636 as *recommended*, and is taken up by RFC 9700 (BCP 240) as *recommended* if the `grant_type` is `authorization_code`.^[Importantly, it is *required* to be present with a value different than `plain` for OAuth 2.1 (draft).] Its value is a string, indicating the PKCE code verifier transformation method.
+
+RFC 7636 defines two such methods, i.e., `S256` and `plain`, and specifies that the property defaults to `plain` if not present in the request.
+
+<!--
+`dpop_jkt` (RFC 7636; RFC 9449)
+: RECOMMENDED. The JWK Thumbprint of the proof-of-possession public key using the SHA-256 hash function, which is the same value as used for the `jkt` confirmation method \[i.e., `cnf` in the access token] ... binding the authorization code issued to the client's proof-of-possession key \[in order to] enable end-to-end binding of the entire authorization flow.
+
+??? `delegation` (@draft-li-oauth-delegated-authorization)
+: REQUIRED \[for delegation token requests]. A `true` \[boolean] parameter ... to indicate that the client is requesting a delegation token instead of an OAuth 2.0 access token.
+
+`auth_session` (@draft-ietf-oauth-first-party-apps)
+: OPTIONAL. \[A dynamic, opaque, client-bound value] the authorization server issues in order to be able to associate subsequent requests from the same client ... \[and] which the client is expected to include on any subsequent requests to the authorization challenge endpoint ... \[The client] must store \[it] beyond the issuance of the authorization code to be able to use it in future requests ... Including the `auth_session` parameter in the token response enables flows such as step-up authentication, so that the authorization server can restore the context of a previous session and prompt only for the needed step-up factors.
+
+`vtr` (RFC 8485)
+: OPTIONAL. A partial set of acceptable Vector of Trust values. The value of this field is a JSON array of strings, each string identifying an acceptable set of vector components. The component values within each vector are AND-ed together while the separate vectors are OR-ed together. Vector request values may omit components, indicating that any value is acceptable for that component category, including omission of that component in the response vector.
+
+`acr_values` (OIDC; RFC 9470; @openid-igov-oauth2; @openid-client-initiated-backchannel-authentication; @openid-connect-modrna-authentication-1_0)
+: OPTIONAL \[REQUIRED by @openid-igov-oauth2; @openid-client-initiated-backchannel-authentication; @openid-connect-modrna-authentication-1_0]. Requested Authentication Context Class Reference values. Space-separated string that specifies the `acr` values that the Authorization Server is being requested to use for processing this Authentication Request, with the values appearing in order of preference. The Authentication Context Class satisfied by the authentication performed is returned as the `acr` Claim Value ... The `acr` Claim is requested as a Voluntary Claim by this parameter. (RFC 9470: The authentication context conveys information about how authentication takes place (e.g., what authentication method(s) or assurance level to meet).)
+
+`max_age` (OIDC; RFC 9470; @openid-igov-oauth2)
+`max_auth_age` (sOpenID PAPE)
+: OPTIONAL. Maximum Authentication Age. Specifies the allowable elapsed time in seconds since the last time the End-User was actively authenticated by the OP. If the elapsed time is greater than this value, the OP MUST attempt to actively re-authenticate the End-User ... When `max_age` is used, the ID Token returned must include an `auth_time` Claim Value. Note that `max_age=0` is equivalent to `prompt=login`. (RFC 9470: This value indicates the allowable elapsed time in seconds since the last active authentication event associated with the access token. An active authentication event entails a user interacting with the authorization server in response to an authentication prompt.)
+
+`requested_expiry` (RFC 8693)
+: OPTIONAL. A positive integer allowing the client to request the `expires_in` value for the `auth_req_id` the server will return. The server MAY use this value to influence the lifetime of the authentication request and is encouraged to do so where it will improve the user experience. -->
+
+
+### Token request parameters {#map-token}
+
+The following additional parameters can occur in OAuth 2.x **token requests**. They MUST be processed together with the mappings defined in~[@map-common], resulting in a single Policy containing only `authorization` Rules.
+
+
+#### `audience`
+
+The `audience` property is defined in RFC 8693 (*OAuth 2.0 Token Exchange*) as recommended.^[It is a required parameter for the RFC 7521 model (*Identity Assertion JWT Authorization Grant*). It is also required for *Oauth 2.0 Transaction Tokens* (draft), and for *OAuth 2.0 Identity Chaining* (draft) if the `resource` property is not present.] Its value is a (case-sensitive?) *strings* or an *array* of such strings, representing the target service(s) intended to process the requested action.
+
+**Mappings**:
+
+If an OAuth 2.x requests contains the `token` property, then for each combination of other rule parameters, the mapping MUST contain one rule per listed audience, such that the *provider* of the rule's *operation* is an object with as *id* the value of the `audience` property, prefixed with `urn:example:gpm:fallback:` if it is not a valid IRI.
+
+---
+
+#### `grant_type`
+
+The `grant_type` property is defined in RFC 6749 as *required*.^[One exception to this is RFC 9201, for which the parameter is *optional*, and falls back to `client_credentials` as a default value.] Its value is a string, representing the type of authorization grant the client provides in this request, which determines further requirements the request needs to conform to.
+
+**Mappings**:
+
+
+#### `client_secret`
+
+The `client_secret` property is defined in RFC 6749 as *required* if the `grant_type` is `client_credentials`. Its value is a secret string, which the client provides as a password to authenticate itself with.
+
+**Mappings**:
+
+
+#### `redirect_uri`
+
+The `redirect_uri` property is defined in RFC 6749 as *required* if the `grant_type` is `authorization_code` and the same property was also present in the authorization request.^[Importantly, in OAuth 2.1 (draft), it is deprecated in favor of PKCE.] Its value is a string that is identical to the value of the same parameter in the authorization request.
+
+**Mappings**:
+
+
+#### `code`
+
+The `code` property is defined in RFC 6749 as *required* if the `grant_type` is `authorization_code`. Its value is a string, namely the authorization code the client has received from the AS in response to a successful authorization request.
+
+**Mappings**:
+
+
+#### `code_verifier`
+
+The `code_verifier` property is defined in RFC 7636 as *required*, and is taken up by RFC 9700 (BCP 240) as *required* for public clients and *recommended* for private clients, if the `grant_type` is `authorization_code`.^[It is also required for OAuth 2.1 (draft).] Its value is a string, namely the original PKCE code verfiier.
+
+**Mappings**:
+
+
+#### `refresh_token`
+
+The `refresh_token` property is defined in RFC 6749 as *required* if the `grant_type` is `refresh_token`. Its value is a string, namely the latest refresh token the client has received from the AS in response to a successful token request.
+
+**Mappings**:
+
+
+<!--
+
+`assertion` (RFC 7521)
+: REQUIRED \[for assertions as authorization grants]. The assertion being used as an authorization grant. Specific serialization of the assertion is defined by profile documents. (RFC 7523: The value of the `client_assertion` parameter must contain a single JWT.)
+
+`client_assertion` (RFC 7521; RFC 7523)
+: REQUIRED \[for assertions as client authentication]. The assertion being used to authenticate the client. Specific serialization of the assertion is defined by profile documents. (RFC 7523: The value of the `client_assertion` parameter contains a single JWT.)
+
+`client_assertion_type` (RFC 7521)
+: REQUIRED \[for assertions as client authentication]. The format of the assertion as defined by the authorization server.  The value will be an absolute URI.
+
+`device_code` (RFC 8628)
+: REQUIRED \[as device authorization grant].  The device verification code, `device_code` from the device authorization response.
+
+`requested_token_type` (RFC 8693)
+: OPTIONAL \[REQUIRED in @draft-ietf-oauth-identity-assertion-authz-grant and @draft-ietf-oauth-transaction-tokens-07]. An identifier ... for the type of the requested security token.
+
+`actor_token` (RFC 8693)
+: OPTIONAL \[with `actor_token_type`]. A security token that represents the identity of the acting party. Typically, this will be the party that is authorized to use the requested security token and act on behalf of the subject.
+
+`actor_token_type` (RFC 8693)
+: OPTIONAL \[with `actor_token_type`]. An identifier ... that indicates the type of the security token in the `actor_token` parameter.
+
+`subject_token` (RFC 8693)
+: REQUIRED. A security token that represents the identity of the party on behalf of whom the request is being made. Typically, the subject of this token will be the subject of the security token issued in response to the request.
+
+`subject_token_type` (RFC 8693)
+: REQUIRED. An identifier ... that indicates the type of the security token in the `subject_token` parameter.
+
+`delegation` (@draft-li-oauth-delegated-authorization)
+: REQUIRED \[for delegation token requests]. A `true` \[boolean] parameter ... to indicate that the client is requesting a delegation token instead of an OAuth 2.0 access token.
+
+`delegation_key` (@draft-li-oauth-delegated-authorization)
+: REQUIRED \[for delegation token requests]. The value of the delegation key \[e.g. a public key or shared secret].
+
+`request_context`
+: RECOMMENDED \[for transaction token requests]. A JSON object which represents the context of this transaction.
+
+`request_details`
+: RECOMMENDED \[for transaction token requests]. A JSON object which contains additional details about the request ... \[that] the requester would like to pass to the TTS \[e.g., API parameters, authorization criteria]. The TTS uses this data along with other information at its disposal to construct the `txct` JSON object (if required).
+
+`vtr` (RFC 8485)
+
+`ace_profile` (RFC 9200)
+: OPTIONAL. that \[the client] wants the AS to include the `ace_profile` parameter in the response. (Profiles define the communication protocol and the communication security protocol between the client and the RS. The security protocol must provide encryption, integrity, and replay protection, \[as well as] a binding between requests and responses, \[and] a list of allowed proof-of-possession methods if they support proof-of-possession tokens.)
+
+`req_cnf` (RFC 9201)
+: OPTIONAL. Information about the key the client would like to bind to the access token for proof of possession \[e.g., at most one `jwk`, `jwe`, `jku`, `COSE_Key`, `Encrypted_COSE_Key`].
+
+`cnonce` (RFC 9200)
+: REQUIRED if the RS provided a client-nonce in the AS Request Creation Hints message ... It must copy the value from the `cnonce` parameter in the AS Request Creation Hints.
+
+
+(((Token type identifiers are URIs ... \[used] as the value to describe the token in question [e.g., `requested_token_type`, `subject_token_type`, `actor_token_type`, `issued_token_type`] ... Token exchange can work with both tokens issued by other parties and tokens from the given authorization server. For the former, the token type identifier indicates the syntax (e.g., JWT or SAML 2.0) so the authorization server can parse it; for the latter, it indicates what the given authorization server issued it for (e.g., `access_token` or `refresh_token`).)))
+-->
+
+## Mapping GPM to OAuth 2.x
