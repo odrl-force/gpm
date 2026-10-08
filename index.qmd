@@ -1,6 +1,4 @@
 
-# Generalized Policy Management
-
 - [Paper](paper/index.pdf) (draft)
 - [Specification](spec/index.html) (draft)
   - [OAuth 2.x profile](spec/profiles/oauth.html)
